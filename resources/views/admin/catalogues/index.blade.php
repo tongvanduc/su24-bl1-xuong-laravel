@@ -29,7 +29,7 @@
                 <div class="card-header d-flex justify-content-between">
                     <h5 class="card-title mb-0">Danh sách</h5>
 
-                    <a href="{{ route('admin.catelogues.create') }}" class="btn btn-primary mb-3">Thêm mới</a>
+                    <a href="{{ route('admin.catalogues.create') }}" class="btn btn-primary mb-3">Thêm mới</a>
                 </div>
                 <div class="card-body">
                     <table id="example"
@@ -62,11 +62,11 @@
                                 <td>{{ $item->created_at }}</td>
                                 <td>{{ $item->updated_at }}</td>
                                 <td>
-                                    <a href="{{ route('admin.catelogues.show', $item->id) }}" class="btn btn-info mb-3">Xem</a>
-                                    <a href="{{ route('admin.catelogues.edit', $item->id) }}"
+                                    <a href="{{ route('admin.catalogues.show', $item->id) }}" class="btn btn-info mb-3">Xem</a>
+                                    <a href="{{ route('admin.catalogues.edit', $item->id) }}"
                                        class="btn btn-warning mb-3">Sửa</a>
 
-                                    <a href="{{ route('admin.catelogues.destroy', $item->id) }}"
+                                    <a href="{{ route('admin.catalogues.destroy', $item->id) }}"
                                        onclick="return confirm('Chắc chắn chưa?')"
                                        class="btn btn-danger mb-3">Xóa</a>
                                 </td>

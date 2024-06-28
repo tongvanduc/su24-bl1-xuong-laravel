@@ -39,7 +39,7 @@ class Product extends Model
 
     public function catelogue()
     {
-        return $this->belongsTo(Catelogue::class);
+        return $this->belongsTo(Catalogue::class);
     }
 
     public function tags()

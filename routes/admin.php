@@ -13,8 +13,8 @@ Route::prefix('admin')
             return view('admin.dashboard');
         })->name('dashboard');
 
-        Route::prefix('catelogues')
-            ->as('catelogues.')
+        Route::prefix('catalogues')
+            ->as('catalogues.')
             ->group(function () {
                 Route::get('/',                 [CatalogueController::class, 'index'])->name('index');
                 Route::get('create',            [CatalogueController::class, 'create'])->name('create');

@@ -51,11 +51,11 @@
                     <div class="collapse menu-dropdown" id="sidebarCatalogues">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="{{ route('admin.catelogues.index') }}" class="nav-link"
+                                <a href="{{ route('admin.catalogues.index') }}" class="nav-link"
                                    data-key="t-horizontal">Danh sách</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.catelogues.create') }}" class="nav-link"
+                                <a href="{{ route('admin.catalogues.create') }}" class="nav-link"
                                    data-key="t-horizontal">Thêm mới</a>
                             </li>
                         </ul>

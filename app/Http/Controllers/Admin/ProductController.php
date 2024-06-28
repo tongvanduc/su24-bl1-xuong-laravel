@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Catelogue;
+use App\Models\Catalogue;
 use App\Models\Product;
 use App\Models\ProductColor;
 use App\Models\ProductGallery;
@@ -36,12 +36,12 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $catelogues = Catelogue::query()->pluck('name', 'id')->all();
+        $catalogues = Catalogue::query()->pluck('name', 'id')->all();
         $colors = ProductColor::query()->pluck('name', 'id')->all();
         $sizes = ProductSize::query()->pluck('name', 'id')->all();
         $tags = Tag::query()->pluck('name', 'id')->all();
 
-        return view(self::PATH_VIEW . __FUNCTION__, compact('catelogues', 'colors', 'sizes', 'tags'));
+        return view(self::PATH_VIEW . __FUNCTION__, compact('catalogues', 'colors', 'sizes', 'tags'));
     }
 
     /**
@@ -49,31 +49,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $dataProduct = $request->except(['product_variants', 'tags', 'product_galleries']);
-        $dataProduct['is_active']       ??= 0;
-        $dataProduct['is_hot_deal']     ??= 0;
-        $dataProduct['is_good_deal']    ??= 0;
-        $dataProduct['is_new']          ??= 0;
-        $dataProduct['is_show_home']    ??= 0;
-        $dataProduct['slug'] = Str::slug($dataProduct['name']) . '-' . $dataProduct['sku'];
-        if ($dataProduct['img_thumbnail']) {
-            $dataProduct['img_thumbnail'] = Storage::put('products', $dataProduct['img_thumbnail']);
-        }
-
-        $dataProductVariantsTmp = $request->product_variants;
-        $dataProductVariants = [];
-        foreach ($dataProductVariantsTmp as $key => $item) {
-            $tmp = explode('-', $key);
-            $dataProductVariants[] = [
-                'product_size_id' => $tmp[0],
-                'product_color_id' => $tmp[1],
-                'quatity' => $item['quatity'],
-                'image' => $item['image'] ?? null,
-            ];
-        }
-
-        $dataProductTags = $request->tags;
-        $dataProductGalleries = $request->product_galleries ?: [];
+        list(
+            $dataProduct,
+            $dataProductVariants,
+            $dataProductGalleries,
+            $dataProductTags
+            ) = $this->handleData($request);
 
         try {
             DB::beginTransaction();
@@ -81,32 +62,42 @@ class ProductController extends Controller
             /** @var Product $product */
             $product = Product::query()->create($dataProduct);
 
-            foreach ($dataProductVariants as $dataProductVariant) {
-                $dataProductVariant['product_id'] = $product->id;
+            foreach ($dataProductVariants as $item) {
+                $item += ['product_id' => $product->id];
 
-                if ($dataProductVariant['image']) {
-                    $dataProductVariant['image'] = Storage::put('products', $dataProductVariant['image']);
-                }
-
-                ProductVariant::query()->create($dataProductVariant);
+                ProductVariant::query()->create($item);
             }
 
             $product->tags()->attach($dataProductTags);
 
-            foreach ($dataProductGalleries as $image) {
-                ProductGallery::query()->create([
-                    'product_id' => $product->id,
-                    'image' => Storage::put('products', $image)
-                ]);
+            foreach ($dataProductGalleries as $item) {
+                $item += ['product_id' => $product->id];
+
+                ProductGallery::query()->create($item);
             }
 
             DB::commit();
 
-            return redirect()->route('admin.products.index');
+            return redirect()
+                ->route('admin.products.index')
+                ->with('success', 'Thao tác thành công!');
         } catch (\Exception $exception) {
             DB::rollBack();
 
-            return back();
+            if (!empty($dataProduct['img_thumbnail'])
+                && Storage::exists($dataProduct['img_thumbnail'])) {
+
+                Storage::delete($dataProduct['img_thumbnail']);
+            }
+
+            $dataHasImage = $dataProductVariants + $dataProductGalleries;
+            foreach ($dataHasImage as $item) {
+                if (!empty($item['image']) && Storage::exists($item['image'])) {
+                    Storage::delete($item['image']);
+                }
+            }
+
+            return back()->with('error', $exception->getMessage());
         }
     }
 
@@ -139,20 +130,75 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        // Trong thực tế, chức năng xóa phải là xóa mềm
+        // Dưới đây code chỉ dành cho làm cơ bản
         try {
+            $dataHasImage = $product->galleries->toArray() + $product->variants->toArray();
+
             DB::transaction(function () use ($product) {
                 $product->tags()->sync([]);
 
                 $product->galleries()->delete();
 
+                // Đoạn foreach này là 1 phần lý do chúng ta không làm xóa cứng, mà chỉ làm xóa mềm
+                // Như các em thấy, nó đang ảnh hưởng đến phần Order.
+                foreach ($product->variants as $variant) {
+                    $variant->orderItems()->delete();
+                }
                 $product->variants()->delete();
 
                 $product->delete();
             }, 3);
 
-            return back();
+            foreach ($dataHasImage as $item) {
+                if (!empty($item->image) && Storage::exists($item->image)) {
+                    Storage::delete($item->image);
+                }
+            }
+
+            return back()->with('success', 'Thao tác thành công');
         } catch (\Exception $exception) {
-            return back();
+            return back()->with('error', $exception->getMessage());
         }
+    }
+
+    private function handleData(Request $request)
+    {
+        $dataProduct = $request->except(['product_variants', 'tags', 'product_galleries']);
+        $dataProduct['is_active'] ??= 0;
+        $dataProduct['is_hot_deal'] ??= 0;
+        $dataProduct['is_good_deal'] ??= 0;
+        $dataProduct['is_new'] ??= 0;
+        $dataProduct['is_show_home'] ??= 0;
+        $dataProduct['slug'] = Str::slug($dataProduct['name']) . '-' . $dataProduct['sku'];
+        if (!empty($dataProduct['img_thumbnail'])) {
+            $dataProduct['img_thumbnail'] = Storage::put('products', $dataProduct['img_thumbnail']);
+        }
+
+        $dataProductVariantsTmp = $request->product_variants;
+        $dataProductVariants = [];
+        foreach ($dataProductVariantsTmp as $key => $item) {
+            $tmp = explode('-', $key);
+            $dataProductVariants[] = [
+                'product_size_id' => $tmp[0],
+                'product_color_id' => $tmp[1],
+                'quatity' => $item['quatity'],
+                'image' => !empty($item['image']) ? Storage::put('product_variants', $item['image']) : null
+            ];
+        }
+
+        $dataProductGalleriesTmp = $request->product_galleries ?: [];
+        $dataProductGalleries = [];
+        foreach ($dataProductGalleriesTmp as $image) {
+            if (!empty($image)) {
+                $dataProductGalleries[] = [
+                    'image' => Storage::put('product_galleries', $image)
+                ];
+            }
+        }
+
+        $dataProductTags = $request->tags;
+
+        return [$dataProduct, $dataProductVariants, $dataProductGalleries, $dataProductTags];
     }
 }

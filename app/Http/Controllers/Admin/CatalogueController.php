@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Catelogue;
+use App\Models\Catalogue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class CatalogueController extends Controller
 {
-    const PATH_VIEW = 'admin.catelogues.';
-    const PATH_UPLOAD = 'catelogues';
+    const PATH_VIEW = 'admin.catalogues.';
+    const PATH_UPLOAD = 'catalogues';
 
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $data = Catelogue::query()->latest('id')->get();
+        $data = Catalogue::query()->latest('id')->get();
 
         return view(self::PATH_VIEW . __FUNCTION__, compact('data'));
     }
@@ -42,9 +42,9 @@ class CatalogueController extends Controller
             $data['cover'] = Storage::put(self::PATH_UPLOAD, $request->file('cover'));
         }
 
-        Catelogue::query()->create($data);
+        Catalogue::query()->create($data);
 
-        return redirect()->route('admin.catelogues.index');
+        return redirect()->route('admin.catalogues.index');
     }
 
     /**
@@ -52,7 +52,7 @@ class CatalogueController extends Controller
      */
     public function show(string $id)
     {
-        $model = Catelogue::query()->findOrFail($id);
+        $model = Catalogue::query()->findOrFail($id);
 
         return view(self::PATH_VIEW . __FUNCTION__, compact('model'));
     }
@@ -62,7 +62,7 @@ class CatalogueController extends Controller
      */
     public function edit(string $id)
     {
-        $model = Catelogue::query()->findOrFail($id);
+        $model = Catalogue::query()->findOrFail($id);
 
         return view(self::PATH_VIEW . __FUNCTION__, compact('model'));
     }
@@ -72,7 +72,7 @@ class CatalogueController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $model = Catelogue::query()->findOrFail($id);
+        $model = Catalogue::query()->findOrFail($id);
 
         $data = $request->except('cover');
         $data['is_active'] ??= 0;
@@ -98,7 +98,7 @@ class CatalogueController extends Controller
      */
     public function destroy(string $id)
     {
-        $model = Catelogue::query()->findOrFail($id);
+        $model = Catalogue::query()->findOrFail($id);
 
         $model->delete();
 

@@ -42,7 +42,7 @@
                             <th>Img Thumbnail</th>
                             <th>Name</th>
                             <th>SKU</th>
-                            <th>Catelogues</th>
+                            <th>Catalogues</th>
                             <th>Price Regular</th>
                             <th>Price Sale</th>
                             <th>Views</th>

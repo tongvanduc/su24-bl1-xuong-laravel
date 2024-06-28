@@ -54,9 +54,9 @@
                                                id="price_sale">
                                     </div>
                                     <div class="mt-3">
-                                        <label for="catelogue_id" class="form-label">Catelogues</label>
+                                        <label for="catelogue_id" class="form-label">Catalogues</label>
                                         <select type="text" class="form-select" name="catelogue_id" id="catelogue_id">
-                                            @foreach($catelogues as $id => $name)
+                                            @foreach($catalogues as $id => $name)
                                                 <option value="{{ $id }}">{{ $name }}</option>
                                             @endforeach
                                         </select>
@@ -83,7 +83,7 @@
                                             <div class="col-md-2">
                                                 <div class="form-check form-switch form-switch-{{ $color }}">
                                                     <input class="form-check-input" type="checkbox" role="switch"
-                                                           name="{{ $key }}" value="1" id="{{ $key }}" checked>
+                                                           name="{{ $key }}" value="1" id="{{ $key }}" @if($key == 'is_active') checked @endif>
                                                     <label class="form-check-label"
                                                            for="{{ $key }}">{{ \Str::convertCase($key, MB_CASE_TITLE) }}</label>
                                                 </div>

@@ -97,6 +97,9 @@
                                 <td>{{ $item->created_at }}</td>
                                 <td>{{ $item->updated_at }}</td>
                                 <td>
+                                    <a href="{{ route('admin.products.edit', $item) }}"
+                                        type="submit" class="btn btn-warning">Edit</a>
+
                                     <form action="{{ route('admin.products.destroy', $item) }}" method="post">
                                         @csrf
                                         @method('DELETE')

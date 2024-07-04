@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CatalogueController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,5 +26,6 @@ Route::prefix('admin')
                 Route::get('{id}/destroy',      [CatalogueController::class, 'destroy'])->name('destroy');
             });
 
-        Route::resource('products', ProductController::class);
+        Route::resource('categories',   CategoryController::class);
+        Route::resource('products',     ProductController::class);
     });

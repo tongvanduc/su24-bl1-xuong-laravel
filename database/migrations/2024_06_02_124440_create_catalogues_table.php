@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('catalogues', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('cover')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('catalogues')) {
+            Schema::create('catalogues', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('cover')->nullable();
+                $table->boolean('is_active')->default(true);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

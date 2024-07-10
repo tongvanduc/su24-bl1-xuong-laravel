@@ -21,9 +21,26 @@
         </div>
     </div>
 
+    @if ($errors->any())
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header align-items-center d-flex">
+                        <div class="alert alert-danger" style="width: 100%;">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
@@ -83,7 +100,8 @@
                                             <div class="col-md-2">
                                                 <div class="form-check form-switch form-switch-{{ $color }}">
                                                     <input class="form-check-input" type="checkbox" role="switch"
-                                                           name="{{ $key }}" value="1" id="{{ $key }}" @if($key == 'is_active') checked @endif>
+                                                           name="{{ $key }}" value="1" id="{{ $key }}"
+                                                           @if($key == 'is_active') checked @endif>
                                                     <label class="form-check-label"
                                                            for="{{ $key }}">{{ \Str::convertCase($key, MB_CASE_TITLE) }}</label>
                                                 </div>

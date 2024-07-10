@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreProductRequest;
 use App\Models\Catalogue;
 use App\Models\Product;
 use App\Models\ProductColor;
@@ -24,9 +25,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $product = Product::query()->find(1003);
-
-        $data = Product::query()->with(['catelogue', 'tags'])->latest('id')->get();
+        $data = Product::query()->with(['catalogue', 'tags'])->latest('id')->get();
 
         return view(self::PATH_VIEW . __FUNCTION__, compact('data'));
     }
@@ -47,7 +46,7 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
         list(
             $dataProduct,
@@ -162,7 +161,7 @@ class ProductController extends Controller
         }
     }
 
-    private function handleData(Request $request)
+    private function handleData(StoreProductRequest $request)
     {
         $dataProduct = $request->except(['product_variants', 'tags', 'product_galleries']);
         $dataProduct['is_active'] ??= 0;

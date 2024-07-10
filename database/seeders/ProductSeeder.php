@@ -51,7 +51,7 @@ class ProductSeeder extends Seeder
         for ($i = 0; $i < 1000; $i++) {
             $name = fake()->text(100);
             Product::query()->create([
-                'catelogue_id' => rand(2, 7),
+                'catalogue_id' => rand(2, 7),
                 'name' => $name,
                 'slug' => Str::slug($name) . '-' . Str::random(8),
                 'sku' => Str::random(8) . $i,
